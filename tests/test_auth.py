@@ -1,34 +1,29 @@
-import os
-import sqlite3
-import pytest
-import config
-from app.database.models import init_db
-from app.auth.auth import register_user, authenticate_user
-
-TEST_DB = "/tmp/alienvoices_test.db"
+import sys; sys.path.insert(0, '.')
+from backend.db import User
 
 
-@pytest.fixture(autouse=True)
-def use_test_db(monkeypatch, tmp_path):
-    db = str(tmp_path / "test.db")
-    monkeypatch.setattr(config, "DATABASE_PATH", db)
-    import app.auth.auth as auth_module
-    import app.database.models as models_module
-    monkeypatch.setattr(auth_module, "DATABASE_PATH", db)
-    monkeypatch.setattr(models_module, "DATABASE_PATH", db)
-    init_db()
+def test_password_hash_not_plain():
+    u = User(first_name='Test', last_name='User', login='t', role='user')
+    u.set_password('secret123')
+    assert u.password_hash != 'secret123'
 
 
-def test_register_and_login():
-    assert register_user("mikhail", "secret") is True
-    assert authenticate_user("mikhail", "secret") is True
+def test_password_check_correct():
+    u = User(first_name='Test', last_name='User', login='t', role='user')
+    u.set_password('mypassword')
+    assert u.check_password('mypassword') is True
 
 
-def test_wrong_password():
-    register_user("mikhail", "secret")
-    assert authenticate_user("mikhail", "wrong") is False
+def test_password_check_wrong():
+    u = User(first_name='Test', last_name='User', login='t', role='user')
+    u.set_password('mypassword')
+    assert u.check_password('wrongpassword') is False
 
 
-def test_duplicate_register():
-    register_user("mikhail", "secret")
-    assert register_user("mikhail", "other") is False
+def test_salt_is_unique():
+    u1 = User(first_name='A', last_name='B', login='a', role='user')
+    u2 = User(first_name='C', last_name='D', login='c', role='user')
+    u1.set_password('same')
+    u2.set_password('same')
+    assert u1.salt != u2.salt
+    assert u1.password_hash != u2.password_hash
