@@ -61,12 +61,12 @@ python main.py
 
 ```
 AlienVoices/
+├── Photos/        # Фотографии выполнения проекта и скриншоты
 ├── app/           # БД и авторизация
 ├── backend/       # Flask API
 ├── gui/           # PyQt6 интерфейс
 ├── ml/            # Нейросеть
-├── notebooks/     # Jupyter
-├── data/          # Датасеты
+├── notebooks/     # Обучение нейросети
 ├── tests/         # Тесты
       
 ├── config.py      # Чувствительная настройка работы программы
